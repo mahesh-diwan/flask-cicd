@@ -1,4 +1,4 @@
-name: Kubernetes CI using Kind
+name: Kubernetes CI with Kind
 
 on:
   push:
@@ -6,20 +6,23 @@ on:
       - main
 
 jobs:
-  deploy:
+  kind-test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
+    - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up Docker
-      uses: docker/setup-buildx-action@v3
-
-    - name: Create Kubernetes cluster with Kind
+    - name: Set up Kind cluster
       uses: helm/kind-action@v1.8.0
       with:
-        wait: 60s  # Wait for cluster to be ready
+        wait: 60s  # Wait until cluster is ready
+
+    - name: Show kubectl config
+      run: kubectl config view
+
+    - name: Check nodes (verify connection)
+      run: kubectl get nodes
 
     - name: Apply Kubernetes manifests
       run: kubectl apply -f k8s/deployment.yaml
